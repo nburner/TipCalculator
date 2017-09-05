@@ -18,21 +18,23 @@ import org.w3c.dom.Text;
 
 public class MainActivity extends AppCompatActivity {
 
-    private EditText billText;
-    private EditText tipPercentageText;
-    private TextView tipAmountText;
-    private TextView totalText;
+    private EditText mBillText;
+    private EditText mTipPercentageText;
+    private TextView mTipAmountText;
+    private TextView mTotalText;
+    private TipCalculatorModel mModel;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        billText = (EditText) findViewById(R.id.bill);
-        tipPercentageText = (EditText) findViewById(R.id.percent);
-        tipAmountText = (TextView) findViewById(R.id.tipAmount);
-        totalText = (TextView) findViewById(R.id.total);
-        billText.addTextChangedListener(calculateOnTextChange);
-        tipPercentageText.addTextChangedListener(calculateOnTextChange);
+        mBillText = (EditText) findViewById(R.id.bill);
+        mTipPercentageText = (EditText) findViewById(R.id.percent);
+        mTipAmountText = (TextView) findViewById(R.id.tipAmount);
+        mTotalText = (TextView) findViewById(R.id.total);
+        mBillText.addTextChangedListener(calculateOnTextChange);
+        mTipPercentageText.addTextChangedListener(calculateOnTextChange);
+        mModel = new TipCalculatorModel();
     }
 
     private final TextWatcher calculateOnTextChange = new TextWatcher() {
@@ -45,30 +47,23 @@ public class MainActivity extends AppCompatActivity {
             try
             {
                 NumberFormat moneyFormat = NumberFormat.getCurrencyInstance();
-
-                Float bill = Float.parseFloat(billText.getText().toString());
-                Float tipPercentage = Float.parseFloat(tipPercentageText.getText().toString());
-
-                Float tipAmount = bill * (tipPercentage / 100);
-                Float total = tipAmount + bill;
-
-                String tipAmountMoney = moneyFormat.format(tipAmount);
-                String totalMoney = moneyFormat.format(total);
-
-                tipAmountText.setText(tipAmountMoney);
-                totalText.setText(totalMoney);
+                mModel.setBill(Float.parseFloat(mBillText.getText().toString()));
+                mModel.setTipPercentage(Float.parseFloat(mTipPercentageText.getText().toString()));
+                mModel.setTipAmount(mModel.getBill(), mModel.getTipPercentage());
+                mModel.setTotal(mModel.getBill(), mModel.getTipAmount());
+                mTipAmountText.setText(moneyFormat.format(mModel.getTipAmount()));
+                mTotalText.setText(moneyFormat.format(mModel.getTotal()));
             }
             catch (Exception e)
             {
                 Toast.makeText(MainActivity.this, "Cannot calculate tip unless both fields are filled out.", Toast.LENGTH_SHORT).show();
-                tipAmountText.setText("");
-                totalText.setText("");
+                mTipAmountText.setText("");
+                mTotalText.setText("");
             }
         }
 
         @Override
         public void onTextChanged(CharSequence s, int start, int before, int count) {
-
         }
     };
 }
